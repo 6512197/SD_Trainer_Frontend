@@ -36,6 +36,18 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
         }
+        @keyframes subtle-tilt {
+            0%, 100% {
+                transform: rotate(-2deg);
+            }
+            50% {
+                transform: rotate(2deg);
+            }
+        }
+
+        .animate-subtle-tilt {
+            animation: subtle-tilt 3s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -46,8 +58,8 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-3">
-                        <div class="h-8 w-8 rounded-lg bg-white-600 flex items-center justify-center">
-                            <img src="../trainer.png" alt="h-10 w-10 Logo" class="h-5 w-6 object-contain">
+                        <div class="h-8 w-8 rounded-lg bg-white-600 flex items-center justify-center animate-subtle-tilt">
+                            <img src="../trainer.png" alt="h-10 w-10 Logo" class="h-10 w-10 object-contain">
                         </div>
                         <span class="text-xl font-bold text-gray-900">
                             System Design Trainer
