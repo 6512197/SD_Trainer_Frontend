@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions Management | System Design Trainer</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .page-transition {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Top Navigation (Simplified) -->
+    <nav class="bg-white shadow-md border-b border-gray-200">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 justify-between">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="flex items-center space-x-3">
+                        <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">
+                            System Design Trainer
+                        </span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            Admin
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="p-6 page-transition">
+        <!-- Page Header -->
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Questions Management</h1>
+                <p class="text-gray-600 mt-2">Create, edit, and manage interview questions</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/admin/questions/new" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Question
+                </a>
+                <button onclick="exportQuestions()"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
+            <form class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Difficulty Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="">All Levels</option>
+                        <option value="ENTRY">ENTRY</option>
+                        <option value="MID">MID</option>
+                        <option value="SENIOR">SENIOR</option>
+                    </select>
+                </div>
+                
+                <!-- Question Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Question Type</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="">All Types</option>
+                        <option value="MULTIPLE_CHOICE">MULTIPLE_CHOICE</option>
+                        <option value="TRUE_FALSE">TRUE_FALSE</option>
+                        <option value="FILL_IN_BLANK">FILL_IN_BLANK</option>
+                        <option value="SYSTEM_DESIGN">SYSTEM_DESIGN</option>
+                    </select>
+                </div>
+                
+                <!-- Topic -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Topic</label>
+                    <input type="text" placeholder="e.g., Caching, Scaling" 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                </div>
+                
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <div class="flex">
+                        <input type="text" placeholder="Search questions..." 
+                               class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2">
+                        <button type="submit" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Questions Table -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Questions (142)
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Show:</span>
+                    <select class="border border-gray-300 rounded-lg px-2 py-1 text-sm">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Question
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Difficulty
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Topic
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Created
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Question 1 -->
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900 line-clamp-2">
+                                            What's the first step when designing a URL shortener system?
+                                        </p>
+                                        <div class="mt-1">
+                                            <span class="text-xs text-gray-500">
+                                                Options: 4
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                    MULTIPLE_CHOICE
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                    ENTRY
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                API Design
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Jan 15, 2024
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="/admin/questions/1/edit" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/admin/questions/1" 
+                                       class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="text-yellow-600 hover:text-yellow-900">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Question 2 -->
+                        <tr class="bg-red-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900 line-clamp-2">
+                                            Design a news feed system for 10 million daily active users.
+                                        </p>
+                                        <div class="mt-1">
+                                            <span class="text-xs text-gray-500">
+                                                System Design
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="ml-2 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">
+                                        Inactive
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                    SYSTEM_DESIGN
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                    SENIOR
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Scaling
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Dec 22, 2023
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="/admin/questions/2/edit" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/admin/questions/2" 
+                                       class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Question 3 -->
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900 line-clamp-2">
+                                            Redis is a better choice than Memcached for session storage.
+                                        </p>
+                                        <div class="mt-1">
+                                            <span class="text-xs text-gray-500">
+                                                True/False
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                    TRUE_FALSE
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                    MID
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Caching
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Feb 3, 2024
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="/admin/questions/3/edit" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/admin/questions/3" 
+                                       class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="text-yellow-600 hover:text-yellow-900">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-medium">1</span>
+                        to <span class="font-medium">10</span>
+                        of <span class="font-medium">142</span> questions
+                    </div>
+                    <nav class="flex space-x-2">
+                        <a href="#" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            First
+                        </a>
+                        <a href="#" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            Previous
+                        </a>
+                        
+                        <a href="#" class="z-10 bg-blue-50 border-blue-500 text-blue-600 px-3 py-2 border text-sm font-medium rounded-lg">
+                            1
+                        </a>
+                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 px-3 py-2 border text-sm font-medium rounded-lg">
+                            2
+                        </a>
+                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 px-3 py-2 border text-sm font-medium rounded-lg">
+                            3
+                        </a>
+                        <span class="px-3 py-2 text-gray-500">...</span>
+                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 px-3 py-2 border text-sm font-medium rounded-lg">
+                            15
+                        </a>
+                        
+                        <a href="#" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            Next
+                        </a>
+                        <a href="#" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            Last
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function exportQuestions() {
+            alert('Export functionality would be implemented here');
+        }
+    </script>
+</body>
+</html>

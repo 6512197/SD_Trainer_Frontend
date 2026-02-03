@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | System Design Trainer</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .sidebar {
+            width: 240px;
+            transition: width 0.3s ease;
+        }
+        .sidebar-collapsed {
+            width: 64px;
+        }
+        .page-transition {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-md border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 justify-between">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-3">
+                        <div class="h-8 w-8 rounded-lg bg-white-600 flex items-center justify-center">
+                            <img src="../trainer.png" alt="h-10 w-10 Logo" class="h-5 w-6 object-contain">
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">
+                            System Design Trainer
+                        </span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            Admin
+                        </span>
+                    </a>
+                </div>
+                
+                <!-- Right Side -->
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" 
+                            class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <!-- User Menu -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100">
+                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-blue-700 font-medium">
+                                    A
+                                </span>
+                            </div>
+                            <div class="text-left hidden md:block">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Admin User
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    ADMIN
+                                </p>
+                            </div>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden group-hover:block">
+                            <a href="/admin/profile" class="block px-4 py-3 hover:bg-gray-50">
+                                <i class="fas fa-user mr-2 text-gray-500"></i>
+                                Profile
+                            </a>
+                            <a href="/admin/settings" class="block px-4 py-3 hover:bg-gray-50">
+                                <i class="fas fa-cog mr-2 text-gray-500"></i>
+                                Settings
+                            </a>
+                            <div class="border-t border-gray-200">
+                                <a href="/logout" class="block px-4 py-3 hover:bg-gray-50 text-red-600">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>
+                                    Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar fixed left-0 top-16 bottom-0 bg-white border-r border-gray-200 overflow-y-auto pt-4">
+        <div class="px-4">
+            <!-- User Summary -->
+            <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-700 font-medium text-lg">
+                            A
+                        </span>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Admin User</p>
+                        <p class="text-xs text-gray-600">PRO Plan</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-1">
+                <a href="/admin/dashboard" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 bg-blue-50 text-blue-700 border-blue-500">
+                    <i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
+                    Dashboard
+                </a>
+                
+                <a href="/admin/questions" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 text-gray-700 hover:bg-gray-100 border-transparent">
+                    <i class="fas fa-question-circle mr-3 w-5 text-center"></i>
+                    Questions
+                    <span class="ml-auto bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">142</span>
+                </a>
+                
+                <a href="/admin/users" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 text-gray-700 hover:bg-gray-100 border-transparent">
+                    <i class="fas fa-users mr-3 w-5 text-center"></i>
+                    Users
+                    <span class="ml-auto bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">89</span>
+                </a>
+                
+                <a href="/admin/interviews" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 text-gray-700 hover:bg-gray-100 border-transparent">
+                    <i class="fas fa-clipboard-list mr-3 w-5 text-center"></i>
+                    Interviews
+                    <span class="ml-auto bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">256</span>
+                </a>
+                
+                <a href="/admin/analytics" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 text-gray-700 hover:bg-gray-100 border-transparent">
+                    <i class="fas fa-chart-line mr-3 w-5 text-center"></i>
+                    Analytics
+                </a>
+                
+                <a href="/admin/settings" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 text-gray-700 hover:bg-gray-100 border-transparent">
+                    <i class="fas fa-cog mr-3 w-5 text-center"></i>
+                    Settings
+                </a>
+            </nav>
+            
+            <!-- Quick Actions -->
+            <div class="pt-4 border-t border-gray-200 mt-4">
+                <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    Quick Actions
+                </p>
+                <a href="/admin/questions/new" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                    <i class="fas fa-plus-circle mr-3 w-5 text-center text-green-500"></i>
+                    Add Question
+                </a>
+                <a href="/app" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                    <i class="fas fa-external-link-alt mr-3 w-5 text-center text-blue-500"></i>
+                    Go to App
+                </a>
+            </div>
+            
+            <!-- Stats -->
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm font-medium text-gray-700 mb-2">Today's Stats</p>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">New Users</span>
+                        <span class="font-medium">12</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Interviews</span>
+                        <span class="font-medium">47</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Avg. Score</span>
+                        <span class="font-medium">78.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="ml-64 pt-16 p-6 page-transition">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-2">Monitor your system design interview platform</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Users -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Users</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">1,248</p>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-600 font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        12.5%
+                    </span>
+                    <span class="text-gray-500 ml-2">from last month</span>
+                </div>
+            </div>
+            
+            <!-- Active Interviews -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Active Interviews</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">42</p>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-play-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Entry: 24</span>
+                        <span class="text-gray-500">Senior: 8</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Questions</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">342</p>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-question-circle text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Entry: 142</span>
+                        <span class="text-gray-500">Senior: 58</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avg. Score -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Avg. Score</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">78.5%</p>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm">
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            3.2%
+                        </span>
+                        <span class="text-gray-500 ml-2">from last week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- User Growth Chart -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">User Growth</h3>
+                    <select class="text-sm border border-gray-300 rounded-lg px-3 py-1">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Difficulty Distribution -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Interview Distribution</h3>
+                    <span class="text-sm text-gray-500">By Difficulty</span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-green-700">Entry Level</span>
+                            <span class="text-sm font-medium text-gray-700">62%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 62%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-yellow-700">Mid Level</span>
+                            <span class="text-sm font-medium text-gray-700">28%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 28%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-red-700">Senior Level</span>
+                            <span class="text-sm font-medium text-gray-700">10%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-2xl font-bold text-green-600">158</p>
+                        <p class="text-sm text-gray-600">Entry</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-yellow-600">72</p>
+                        <p class="text-sm text-gray-600">Mid</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-red-600">26</p>
+                        <p class="text-sm text-gray-600">Senior</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+            </div>
+            <div class="divide-y divide-gray-200">
+                <!-- Activity Item 1 -->
+                <div class="px-6 py-4">
+                    <div class="flex items-start">
+                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-clipboard-list text-green-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <p class="text-sm font-medium text-gray-900">
+                                John Doe completed a Senior Level interview on URL Shortener
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <i class="far fa-clock mr-1"></i>
+                                10 minutes ago
+                            </p>
+                        </div>
+                        <a href="/admin/interviews/123" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Activity Item 2 -->
+                <div class="px-6 py-4">
+                    <div class="flex items-start">
+                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <p class="text-sm font-medium text-gray-900">
+                                New user registered: jane.smith@example.com
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <i class="far fa-clock mr-1"></i>
+                                45 minutes ago
+                            </p>
+                        </div>
+                        <a href="/admin/users/456" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Activity Item 3 -->
+                <div class="px-6 py-4">
+                    <div class="flex items-start">
+                        <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-question-circle text-purple-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <p class="text-sm font-medium text-gray-900">
+                                New question added: "Design a news feed for 10M users"
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <i class="far fa-clock mr-1"></i>
+                                2 hours ago
+                            </p>
+                        </div>
+                        <a href="/admin/questions/789" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200">
+                <a href="/admin/activity" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    View all activity →
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // User Growth Chart
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'New Users',
+                        data: [65, 78, 90, 112, 145, 178, 210],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
